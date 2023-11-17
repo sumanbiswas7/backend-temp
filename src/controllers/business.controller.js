@@ -23,4 +23,18 @@ async function get_business(req, res) {
   res.json(result);
 }
 
-module.exports = { get_business };
+async function update_business(req, res) {
+  const error = new HttpError({});
+  const id = (req.params.id || "").toString();
+
+  if (id.length !== 24) {
+    error.message = "Invalid id provided";
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    return res.status(error.status).json(error);
+  }
+
+  const result = await Business.updateOne({ _id: id }, req.body);
+  res.json(result);
+}
+
+module.exports = { get_business, update_business };
