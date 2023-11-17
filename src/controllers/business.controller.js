@@ -1,16 +1,12 @@
 const { HttpError } = require("../helpers/http-error");
 const { HTTP_STATUS } = require("../helpers/http-status");
 const Business = require("../models/business.model");
+const { validateIDError } = require("../utils/handle-id.error");
 
 async function get_business(req, res) {
   const error = new HttpError({});
-  const id = (req.params.id || "").toString();
-
-  if (id.length !== 24) {
-    error.message = "Invalid id provided";
-    error.status = HTTP_STATUS.BAD_REQUEST;
-    return res.status(error.status).json(error);
-  }
+  const id = req.params.id;
+  validateIDError(id, res);
 
   const result = await Business.findById(id);
 
@@ -23,15 +19,20 @@ async function get_business(req, res) {
   res.json(result);
 }
 
+/**
+ * can update: name:str, timeFormat:str, dateFormat:str, columns
+ * columns: {title:str, type:str}[]
+ *
+ * @example
+ * // Request Body
+ *  {
+ *   "name": "Updated Business Name",
+ *   "columns": [{ "title": "Updated Column Title", "type": "string" }]
+ *   }
+ */
 async function update_business(req, res) {
-  const error = new HttpError({});
-  const id = (req.params.id || "").toString();
-
-  if (id.length !== 24) {
-    error.message = "Invalid id provided";
-    error.status = HTTP_STATUS.BAD_REQUEST;
-    return res.status(error.status).json(error);
-  }
+  const id = req.params.id;
+  validateIDError(id, res);
 
   const result = await Business.updateOne({ _id: id }, req.body);
   res.json(result);
