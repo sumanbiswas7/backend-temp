@@ -1,8 +1,10 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const { globalErrorHandler } = require("./utils/global-err-handler");
 const mongoose = require("mongoose");
 
+// Import Routes
 const statusRoutes = require("./routes/status.routes");
 const businessRoutes = require("./routes/business.routes");
 
@@ -16,6 +18,8 @@ app.use(express.json());
 // routes
 app.use("/", statusRoutes);
 app.use("/business", businessRoutes);
+
+app.use(globalErrorHandler);
 
 // start server
 main();
