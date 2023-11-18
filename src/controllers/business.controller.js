@@ -1,15 +1,20 @@
 const { HttpError } = require("../helpers/http-error");
 const { HTTP_STATUS } = require("../helpers/http-status");
 const Business = require("../models/business.model");
-const { validateIDError } = require("../utils/handle-id.error");
+const { isValidMongoId } = require("../utils/handle-id.error");
 
 async function get_business(req, res) {
   const error = new HttpError({});
   const id = req.params.id;
-  validateIDError(id, res);
+
+  const idErr = isValidMongoId(id);
+  if (idErr.valid === false) {
+    error.message = idErr.msg;
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    return res.status(error.status).json(error);
+  }
 
   const result = await Business.findById(id);
-
   if (!result) {
     error.message = "No Business with this id found";
     error.status = HTTP_STATUS.NOT_FOUND;
@@ -32,7 +37,13 @@ async function get_business(req, res) {
  */
 async function update_business(req, res) {
   const id = req.params.id;
-  validateIDError(id, res);
+
+  const idErr = isValidMongoId(id);
+  if (idErr.valid === false) {
+    error.message = idErr.msg;
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    return res.status(error.status).json(error);
+  }
 
   const result = await Business.updateOne({ _id: id }, req.body);
   res.json(result);
