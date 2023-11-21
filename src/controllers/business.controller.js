@@ -1,15 +1,23 @@
 const { HttpError } = require("../helpers/http-error");
 const { HTTP_STATUS } = require("../helpers/http-status");
-const Business = require("../models/business.model");
-const { validateIDError } = require("../utils/handle-id.error");
+const { Business, Sheet } = require("../models/business.model");
+const { isValidMongoId } = require("../utils/handle-id.error");
 
 async function get_business(req, res) {
   const error = new HttpError({});
   const id = req.params.id;
-  validateIDError(id, res);
+
+  // dummy wait 2 sec
+  // await new Promise((res) => setTimeout(() => res(), 2000));
+
+  const idErr = isValidMongoId(id);
+  if (idErr.valid === false) {
+    error.message = idErr.msg;
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    return res.status(error.status).json(error);
+  }
 
   const result = await Business.findById(id);
-
   if (!result) {
     error.message = "No Business with this id found";
     error.status = HTTP_STATUS.NOT_FOUND;
@@ -31,11 +39,52 @@ async function get_business(req, res) {
  *   }
  */
 async function update_business(req, res) {
+  const error = new HttpError({});
   const id = req.params.id;
-  validateIDError(id, res);
+
+  const idErr = isValidMongoId(id);
+  if (idErr.valid === false) {
+    error.message = idErr?.msg;
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    return res.status(error.status).json(error);
+  }
 
   const result = await Business.updateOne({ _id: id }, req.body);
   res.json(result);
 }
 
-module.exports = { get_business, update_business };
+async function update_business_sheet(req, res) {
+  const error = new HttpError({});
+  const id = req.params.id;
+
+  const idErr = isValidMongoId(id);
+  if (idErr.valid === false) {
+    error.message = idErr?.msg;
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    return res.status(error.status).json(error);
+  }
+
+  const result = await Sheet.updateOne({ _id: id }, req.body);
+  res.json(result);
+}
+
+async function create_buisness(req, res) {
+  const { name } = req.body;
+  const error = new HttpError({});
+
+  if (!name) {
+    error.message = `Business Name is required got ${name}`;
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    return res.status(error.status).json(error);
+  }
+
+  const result = await Business.create({ name });
+  return res.json(result);
+}
+
+module.exports = {
+  get_business,
+  update_business,
+  create_buisness,
+  update_business_sheet,
+};
