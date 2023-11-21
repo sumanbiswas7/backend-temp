@@ -18,6 +18,8 @@ route.get("/:id", get_business);
 route.put("/:id", update_business);
 route.put("/sheet/:id", update_business_sheet);
 route.post("/create", create_buisness);
+
+// Not Working
 route.put("/add-field/:id", add_field);
 
 module.exports = route;
