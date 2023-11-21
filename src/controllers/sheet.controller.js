@@ -15,7 +15,8 @@ async function add_field(req, res) {
     return res.status(error.status).json(error);
   }
 
-  const result = await Field.create({ _id: id }, req.body);
+  // Update Sheet fields:[] from sheet id
+  const result = await Sheet.updateOne({ _id: id }, req.body);
   res.json(result);
 }
 
