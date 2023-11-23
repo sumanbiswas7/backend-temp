@@ -3,6 +3,7 @@ const { HTTP_STATUS } = require("../helpers/http-status");
 const { Sheet, Field } = require("../models/business.model");
 const { isValidMongoId } = require("../utils/handle-id.error");
 
+// NOT WORKING when updating fields
 async function add_field(req, res) {
   // Add new filed by sheet id
   const error = new HttpError({});
