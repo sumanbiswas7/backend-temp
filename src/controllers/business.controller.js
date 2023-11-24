@@ -1,3 +1,4 @@
+const { ALLOWED_DATE_FORMATS } = require("../constants/allowed-date-formats");
 const { HttpError } = require("../helpers/http-error");
 const { HTTP_STATUS } = require("../helpers/http-status");
 const { Business, Sheet } = require("../models/business.model");
@@ -45,6 +46,22 @@ async function update_business(req, res) {
   const idErr = isValidMongoId(id);
   if (idErr.valid === false) {
     error.message = idErr?.msg;
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    return res.status(error.status).json(error);
+  }
+
+  const dateFormat = req.body?.dateFormat;
+  if (dateFormat && !(dateFormat in ALLOWED_DATE_FORMATS)) {
+    error.data = { dateFormat };
+    error.message = `Provided date format is not allowed`;
+    error.status = HTTP_STATUS.BAD_REQUEST;
+    return res.status(error.status).json(error);
+  }
+
+  const timeFormat = req.body?.timeFormat;
+  if (timeFormat && timeFormat !== "24H" && timeFormat !== "12H") {
+    error.data = { timeFormat };
+    error.message = `Provided time format is not allowed`;
     error.status = HTTP_STATUS.BAD_REQUEST;
     return res.status(error.status).json(error);
   }
